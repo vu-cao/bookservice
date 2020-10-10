@@ -1,0 +1,11 @@
+server:
+  port: 8888
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: none
+  datasource:
+    initialization-mode: never
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: false

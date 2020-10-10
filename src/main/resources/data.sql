@@ -1,0 +1,1 @@
+INSERT INTO book(id,author_id,description,isbn,published_date,title) VALUES (1,1, 'Book 1 Description', 'B1', '1990-02-21 00:00:00', 'Book 1');

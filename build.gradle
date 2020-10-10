@@ -1,0 +1,77 @@
+plugins {
+    id 'org.springframework.boot' version '2.3.4.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+    id 'org.liquibase.gradle' version '2.0.4'
+}
+
+group = 'net.microservices.bookstore'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+ext {
+    set('springCloudVersion', "Hoxton.SR8")
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.cloud:spring-cloud-config-client'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.liquibase:liquibase-core'
+
+    liquibaseRuntime 'mysql:mysql-connector-java'
+    liquibaseRuntime 'ch.qos.logback:logback-core'
+    liquibaseRuntime 'ch.qos.logback:logback-classic'
+    liquibaseRuntime 'org.springframework:spring-beans'
+    liquibaseRuntime 'org.springframework.boot:spring-boot-starter-data-jpa'
+    liquibaseRuntime 'org.liquibase.ext:liquibase-hibernate5:3.6'
+    liquibaseRuntime 'org.yaml:snakeyaml'
+    liquibaseRuntime sourceSets.main.runtimeClasspath
+    liquibaseRuntime sourceSets.main.output
+    liquibaseRuntime sourceSets.main.output.classesDirs
+
+    runtimeOnly 'mysql:mysql-connector-java'
+    runtimeOnly 'org.springframework.security:spring-security-rsa'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+liquibase {
+    activities {
+        main {
+            changeLogFile 'src/main/resources/db/changelog/db.changelog-master.yaml'
+            url 'jdbc:mysql://localhost:3306/book?useLegacyDatetimeCode=false&serverTimezone=Australia/Sydney&useSSL=false&allowPublicKeyRetrieval=true'
+            username 'root'
+            password 'rootuser'
+            referenceUrl 'hibernate:spring:net.microservices.bookstore.model?dialect=org.hibernate.dialect.MySQL5Dialect&hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy&hibernate.implicit_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy'
+            referenceDriver 'liquibase.ext.hibernate.database.connection.HibernateDriver'
+            driver 'com.mysql.cj.jdbc.Driver'
+        }
+    }
+}
+
+bootRun {
+    systemProperties = System.properties
+}
+
+diff.dependsOn compileJava
+diffChangeLog.dependsOn compileJava
+generateChangelog.dependsOn compileJava
